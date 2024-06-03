@@ -1,0 +1,9 @@
+torch~=2.1.0
+gymnasium~=0.29.1
+matplotlib~=3.8.4
+setuptools~=60.9.3
+glfw~=2.7.0
+mujoco~=3.1.4
+cloudpickle~=3.0.0
+moviepy~=1.0.3
+ffmpeg~=1.4
