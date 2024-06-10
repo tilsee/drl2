@@ -1,3 +1,8 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
+
+
 from configparser import ConfigParser, ExtendedInterpolation
 
 from src.environment import create_kicker_env
@@ -8,7 +13,7 @@ from train import train_kicker
 
 def main():
     config = ConfigParser(interpolation=ExtendedInterpolation())
-    config.read('../resources/config.ini')
+    config.read('resources/config.ini')
     used_rl_algorithm = A2C
     for seed in range(1, 4):
         env = create_kicker_env(config=config, seed=seed)
