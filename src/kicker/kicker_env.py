@@ -11,19 +11,21 @@ from src.kicker.viewer import MujocoViewer
 class Kicker(gym.Env):
     spec = EnvSpec("KickerEnv", "no-entry-point")
 
-    def __init__(self,
-                 seed: int = 10,
-                 horizon: int = 1000,
-                 continuous_act_space: bool = True,
-                 multi_discrete_act_space: bool = False,
-                 image_obs_space: bool = False,
-                 end_episode_on_struck_goal: bool = True,
-                 end_episode_on_conceded_goal: bool = True,
-                 reset_goalie_position: bool = True,
-                 render_training: bool = True,
-                 lateral_bins: int = 4,
-                 angular_bins: int = 8,
-                 step_frequency: int = 16):
+    def __init__(
+        self,
+        seed: int = 10,
+        horizon: int = 1000,
+        continuous_act_space: bool = True,
+        multi_discrete_act_space: bool = False,
+        image_obs_space: bool = False,
+        end_episode_on_struck_goal: bool = True,
+        end_episode_on_conceded_goal: bool = True,
+        reset_goalie_position: bool = True,
+        render_training: bool = True,
+        lateral_bins: int = 4,
+        angular_bins: int = 8,
+        step_frequency: int = 16,
+    ):
         super().__init__()
         self.seed = seed
         self.random_num_generator = np.random.default_rng(seed=self.seed)
@@ -47,7 +49,9 @@ class Kicker(gym.Env):
         self.data = mujoco.MjData(self.model)
         self.nr_substeps = 1
         self.nr_intermediate_steps = step_frequency
-        self.dt = self.model.opt.timestep * self.nr_substeps * self.nr_intermediate_steps
+        self.dt = (
+            self.model.opt.timestep * self.nr_substeps * self.nr_intermediate_steps
+        )
 
         self.camera_id = "table_view"
         self.render_mode = "human" if render_training else "rgb_array"
@@ -89,7 +93,9 @@ class Kicker(gym.Env):
 
         # Ball Velocity
         goal_height = -1.25
-        vels = calculate_axis_velocities(qpos[2], qpos[3], goal_height, [-0.175, 0.175], 2, self.random_num_generator)
+        vels = calculate_axis_velocities(
+            qpos[2], qpos[3], goal_height, [-0.175, 0.175], 2, self.random_num_generator
+        )
         qvel[2] = vels[0]
         qvel[3] = vels[1]
 
@@ -128,8 +134,14 @@ class Kicker(gym.Env):
 
         ball_data = r_info["ball_position"]
         ball_outside_bounds = is_ball_outside_bounds(ball_data)
-        ball_stopped_outside_goalie_space = self._ball_stopped() and is_ball_outside_goalie_space(ball_data)
-        truncated = self.episode_step >= self.horizon or ball_outside_bounds or ball_stopped_outside_goalie_space
+        ball_stopped_outside_goalie_space = (
+            self._ball_stopped() and is_ball_outside_goalie_space(ball_data)
+        )
+        truncated = (
+            self.episode_step >= self.horizon
+            or ball_outside_bounds
+            or ball_stopped_outside_goalie_space
+        )
 
         info = {**r_info, "outside_bounds": 1 if ball_outside_bounds else 0}
 
@@ -151,8 +163,12 @@ class Kicker(gym.Env):
     def get_reward(self):
         ball_pos = self.data.body("ball").xpos
 
-        black_conceded = self.data.sensor("black_goal_sensor").data[0] > 0 or is_ball_in_black_goal_bounds(ball_pos)
-        white_conceded = self.data.sensor("white_goal_sensor").data[0] > 0 or is_ball_in_white_goal_bounds(ball_pos)
+        black_conceded = self.data.sensor("black_goal_sensor").data[
+            0
+        ] > 0 or is_ball_in_black_goal_bounds(ball_pos)
+        white_conceded = self.data.sensor("white_goal_sensor").data[
+            0
+        ] > 0 or is_ball_in_white_goal_bounds(ball_pos)
 
         reward = 0
 
@@ -169,7 +185,7 @@ class Kicker(gym.Env):
             "ball_position": ball_pos,
             "ball_x_position": ball_pos[0],
             "ball_y_position": ball_pos[1],
-            "ball_z_position": ball_pos[2]
+            "ball_z_position": ball_pos[2],
         }
 
         return reward, info
@@ -193,11 +209,18 @@ class Kicker(gym.Env):
             return self._flatten_discrete_action(action)
 
     def _flatten_multi_discrete_action(self, action):
-        return np.array([-1 + (self.lateral_increment * action[0]), -1 + (self.angular_increment * action[1])])
+        return np.array(
+            [
+                -1 + (self.lateral_increment * action[0]),
+                -1 + (self.angular_increment * action[1]),
+            ]
+        )
 
     def _flatten_discrete_action(self, action):
         if action < self.lateral_bins:
-            return np.array([-1 + (action * self.lateral_increment), self.last_action[1]])
+            return np.array(
+                [-1 + (action * self.lateral_increment), self.last_action[1]]
+            )
         action -= self.lateral_bins
         return np.array([self.last_action[0], -1 + (action * self.angular_increment)])
 
@@ -239,11 +262,9 @@ class Kicker(gym.Env):
     def _get_discrete_observation(self) -> np.ndarray:
         sensors_wo_goals = self.data.sensordata[2:12]
 
-        return np.concatenate([
-            sensors_wo_goals,
-            self.data.body("ball").xpos,
-            self.last_action
-        ])
+        return np.concatenate(
+            [sensors_wo_goals, self.data.body("ball").xpos, self.last_action]
+        )
 
     def _get_image_observation(self) -> np.ndarray:
         self.renderer.update_scene(self.data, self.camera_id)
@@ -263,13 +284,17 @@ class Kicker(gym.Env):
         if self.continuous_act_space:
             action_bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
             action_low, action_high = action_bounds.T
-            return gym.spaces.Box(low=action_low, high=action_high, dtype=np.float32, seed=self.seed)
+            return gym.spaces.Box(
+                low=action_low, high=action_high, dtype=np.float32, seed=self.seed
+            )
         elif self.multi_discrete_act_space:
-            return gym.spaces.MultiDiscrete([self.lateral_bins, self.angular_bins],
-                                            seed=self.seed)
+            return gym.spaces.MultiDiscrete(
+                [self.lateral_bins, self.angular_bins], seed=self.seed
+            )
         else:
-            return gym.spaces.Discrete(self.lateral_bins + self.angular_bins,
-                                       seed=self.seed)
+            return gym.spaces.Discrete(
+                self.lateral_bins + self.angular_bins, seed=self.seed
+            )
 
     def _make_observation_space(self) -> spaces.Box:
         """
@@ -281,12 +306,21 @@ class Kicker(gym.Env):
             # When using image as input,
             # one image contains the bits 0 -> 0, 1 -> 255
             # and the rest is filled with zeros
-            return gym.spaces.Box(low=0, high=255, shape=self._get_image_observation().shape, dtype=np.uint8)
+            return gym.spaces.Box(
+                low=0,
+                high=255,
+                shape=self._get_image_observation().shape,
+                dtype=np.uint8,
+            )
         else:
             # In the discrete case, the agent act on the binary
             # representation of the observation
-            return gym.spaces.Box(low=-np.inf, high=np.inf, shape=self._get_discrete_observation().shape,
-                                  dtype=np.float32)
+            return gym.spaces.Box(
+                low=-np.inf,
+                high=np.inf,
+                shape=self._get_discrete_observation().shape,
+                dtype=np.float32,
+            )
 
 
 def get_random_white_striker_position(prob: float):
@@ -301,7 +335,9 @@ def get_random_white_striker_position(prob: float):
         return -1.0435 + 0.075
 
 
-def calculate_axis_velocities(x_start, y_start, x_target, y_target_range, velocity, random_num_generator):
+def calculate_axis_velocities(
+    x_start, y_start, x_target, y_target_range, velocity, random_num_generator
+):
     """
     Calculates the necessary velocity components (v_x, v_y) to hit a target range.
 
@@ -316,7 +352,9 @@ def calculate_axis_velocities(x_start, y_start, x_target, y_target_range, veloci
     Returns:
     - Tuple (v_x, v_y): Velocity components along x and y axes.
     """
-    y_target = random_num_generator.uniform(low=y_target_range[0], high=y_target_range[1])
+    y_target = random_num_generator.uniform(
+        low=y_target_range[0], high=y_target_range[1]
+    )
     delta_x = x_target - x_start
     delta_y = y_target - y_start
 
