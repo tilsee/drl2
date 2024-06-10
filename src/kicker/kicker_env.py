@@ -172,6 +172,8 @@ class Kicker(gym.Env):
             "ball_z_position": ball_pos[2],
             "ball_x_velocity": self.data.qvel[2],
             "ball_z_velocity": self.data.qvel[3],
+            "goalie_z_position": self.data.qvel[0],
+            "goalie_angular_pos": self.data.qvel[1]
         }
         return reward, info
 
