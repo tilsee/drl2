@@ -24,6 +24,7 @@ def create_kicker_env(config: ConfigParser, seed: int):
     # Default wrappers
     env = Monitor(env)
     env = DummyVecEnv([lambda: env])
+    env = VecPBRSWrapper(env)
 
     ############################################
     # Add Wrappers here
