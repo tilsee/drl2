@@ -4,7 +4,7 @@ from src.sb3.stable_baselines3.common.vec_env import VecEnv, VecEnvWrapper
 from src.sb3.stable_baselines3.common.vec_env.base_vec_env import VecEnvStepReturn, VecEnvObs
 
 
-class VecPBRSWrapper(VecEnvWrapper):
+class VecBALLSAVERWrapper(VecEnvWrapper):
 
     def __init__(self, venv: VecEnv, gamma: float = 0.99):
         VecEnvWrapper.__init__(self, venv, venv.observation_space, venv.action_space)

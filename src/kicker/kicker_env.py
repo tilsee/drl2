@@ -169,9 +169,10 @@ class Kicker(gym.Env):
             "ball_position": ball_pos,
             "ball_x_position": ball_pos[0],
             "ball_y_position": ball_pos[1],
-            "ball_z_position": ball_pos[2]
+            "ball_z_position": ball_pos[2],
+            "ball_x_velocity": self.data.qvel[2],
+            "ball_z_velocity": self.data.qvel[3],
         }
-
         return reward, info
 
     def render(self, mode=None):
