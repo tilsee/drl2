@@ -26,7 +26,6 @@ class VecPBRSWrapper(VecEnvWrapper):
         rewards += potential_differences
         return observations, rewards, dones, infos
 
-
 def _potential(ball_pos: np.ndarray):
     return weighted_x_pot(ball_pos[0]) + weighted_z_pot(ball_pos[1])
 
