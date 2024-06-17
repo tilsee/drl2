@@ -28,7 +28,7 @@ def create_kicker_env(config: ConfigParser, seed: int):
     # Add Wrappers here
     ############################################
 
-    env = VecPBRSWrapper(env)
+    #env = VecPBRSWrapper(env)
     env = VecBALLSAVERWrapper(env)
 
     if not env_conf.getboolean('render_training'):
