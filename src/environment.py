@@ -5,6 +5,7 @@ from sb3.stable_baselines3.common.monitor import Monitor
 from sb3.stable_baselines3.common.vec_env import DummyVecEnv, VecVideoRecorder
 from sb3.stable_baselines3.common.vec_env.vec_pbrs import VecPBRSWrapper
 from sb3.stable_baselines3.common.vec_env.vec_normalize import VecNormalize
+from CustomWrapper import CustomWrapper
 
 
 def create_kicker_env(config: ConfigParser, seed: int):
@@ -28,6 +29,7 @@ def create_kicker_env(config: ConfigParser, seed: int):
     ############################################
     # Add Wrappers here
     ############################################
+    #env = CustomWrapper(env)
 
     if not env_conf.getboolean('render_training'):
         video_conf = config['VideoRecording']

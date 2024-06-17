@@ -90,8 +90,8 @@ class Kicker(gym.Env):
         # Ball Velocity
         goal_height = -1.25
         vels = calculate_axis_velocities(qpos[2], qpos[3], goal_height, [-0.175, 0.175], 2, self.random_num_generator)
-        qvel[2] = vels[0]
-        qvel[3] = vels[1]
+        qvel[2] = vels[0] # Velocity axis 1
+        qvel[3] = vels[1] # Velocity axis 2
 
         self.data.qpos[:] = qpos
         self.data.qvel[:] = qvel
@@ -150,6 +150,7 @@ class Kicker(gym.Env):
 
     def get_reward(self):
         ball_pos = self.data.body("ball").xpos
+        #self.data.body("ball")
 
         black_conceded = self.data.sensor("black_goal_sensor").data[0] > 0 or is_ball_in_black_goal_bounds(ball_pos)
         white_conceded = self.data.sensor("white_goal_sensor").data[0] > 0 or is_ball_in_white_goal_bounds(ball_pos)
@@ -168,8 +169,12 @@ class Kicker(gym.Env):
             "white_conceded": 1 if white_conceded else 0,
             "ball_position": ball_pos,
             "ball_x_position": ball_pos[0],
-            "ball_y_position": ball_pos[1],
-            "ball_z_position": ball_pos[2]
+            "ball_z_position": ball_pos[1],
+            "ball_y_position": ball_pos[2],
+            "ball_x_velocity": self.data.qvel[2], 
+            "ball_y_velocity": self.data.qvel[3],
+            "goalie_x_position" : self.data.qpos[0], # Läuft seitlich
+            "goalie_z_position" : self.data.qpos[1] # Neigt sich
         }
 
         return reward, info
