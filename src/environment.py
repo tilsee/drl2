@@ -30,6 +30,7 @@ def create_kicker_env(config: ConfigParser, seed: int):
 
     #env = VecPBRSWrapper(env)
     env = VecBALLSAVERWrapper(env)
+    env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
     if not env_conf.getboolean('render_training'):
         video_conf = config['VideoRecording']

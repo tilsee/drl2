@@ -10,8 +10,8 @@ class VecBALLSAVERWrapper(VecEnvWrapper):
         VecEnvWrapper.__init__(self, venv, venv.observation_space, venv.action_space)
         self.venv = venv
         self.gamma = gamma
-        self.history = deque(maxlen=5)  # History of last 5 state infos
-
+        self.history = []#deque(maxlen=5)  # History of last 5 state infos
+        self.current_round_steps = 0
     def reset(self) -> VecEnvObs:
         obs = self.venv.reset()
         self.history.clear()  # Clear history on reset
@@ -20,38 +20,14 @@ class VecBALLSAVERWrapper(VecEnvWrapper):
 
     def step_wait(self) -> VecEnvStepReturn:
         observations, rewards, dones, infos = self.venv.step_wait()
-        # print("Goalie intercept distance: ", x_intercept)
-        # print("Time to intercept: ", time)
-
-        # Incentive for not moving the goalie
-        if len(self.history) > 0:
-            first_info = self.history[0]  # Get the earliest info available
-            dif_y = abs(infos[0]['goalie_y_position'] - first_info['goalie_y_position'])
-            dif_rot = abs(infos[0]['goalie_angle'] - first_info['goalie_angle'])
-            reward_rot = -0.5 * dif_rot
-            reward_zpos = -1 * dif_y
-        else:
-            reward_rot = reward_zpos = 0
-
-        # incentive for keeping figure down
-        reward_stay_down = 10 if abs(infos[0]['goalie_angle']) < 0.2 else -0.5
-
-        # incentive for moving towards ball intercept line. the closer the better
-        print(infos[0]["ball_velocity"][2])
-        if infos[0]["ball_velocity"][2]<0:
-            y_intercept, time = calculate_intercept(infos[0]["ball_position"][0], infos[0]["ball_position"][1], infos[0]["ball_velocity"][2], infos[0]["ball_velocity"][3])
-            goalie_dif_intercept = abs(y_intercept - infos[0]['goalie_y_position'])
-            reward_ball_intercept = (1-goalie_dif_intercept)*10 if goalie_dif_intercept != 0 else 5
-            # print('try block reached')
-        else:
-            reward_ball_intercept = 0.5 if infos[0]['goalie_y_position']-infos[0]["ball_y_position"] < 0.1 else -0.5
-            # print('exept block reached')
-
-        # Aggregate rewards
-        rewards += reward_rot + reward_zpos + reward_ball_intercept + reward_stay_down
-        # Update history with the current info
-        print(rewards)
-        self.history.append(infos[0])
+        if infos[0]["black_conceded"] == 1 or infos[0]["white_conceded"] == 1:
+            self.current_round_steps = 0
+        self.current_round_steps += 1
+        x_vel = infos[0]["ball_x_velocity"]
+        reward_ball_vel = min(0.4,x_vel/abs(x_vel)*x_vel*2)
+        time_penality_ratio = 0.001
+        penalty_time = time_penality_ratio*self.current_round_steps
+        rewards +=  reward_ball_vel + penalty_time
         return observations, rewards, dones, infos
 
 def contour_plot_to_console(X, Z, Y):
