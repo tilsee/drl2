@@ -28,8 +28,9 @@ def create_kicker_env(config: ConfigParser, seed: int):
     # Add Wrappers here
     ############################################
 
-    env = VecPBRSWrapper(env)
     env = VecBALLSAVERWrapper(env)
+    env = VecNormalize(env)
+    env = VecPBRSWrapper(env)
 
     if not env_conf.getboolean('render_training'):
         video_conf = config['VideoRecording']
