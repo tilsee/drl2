@@ -73,7 +73,7 @@ class VecBALLSAVERWrapper(VecEnvWrapper):
         #if shot_value <= 0.25:
         #    rewards += 2
         #penalty_time = 0.001 * self.current_round_steps
-        rewards -= self.gamma * goal_distance
+        rewards -= goal_distance
         #rewards += self.gamma * ball_x_velocity
         #rewards -= penalty_time
         #rewards -= 2 * shot_value
