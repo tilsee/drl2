@@ -7,6 +7,7 @@ class VecPBRSWrapperHolistic(VecEnvWrapper):
         super().__init__(venv, venv.observation_space, venv.action_space)
         self.gamma = gamma
         self.last_potentials = None
+        self.time_step = 0
 
     def reset(self) -> VecEnvObs:
         obs = self.venv.reset()
@@ -19,6 +20,7 @@ class VecPBRSWrapperHolistic(VecEnvWrapper):
         potential_differences = self.gamma * current_potentials - self.last_potentials
         self.last_potentials = current_potentials
         rewards += potential_differences
+        self.time_step += 1
         return observations, rewards, dones, infos
 
 def _potential(ball_pos, goalie_pos):
@@ -31,11 +33,34 @@ def _potential(ball_pos, goalie_pos):
 def _potentials(infos):
     return np.array([_potential(info["ball_position"], info.get("goalie_position", [0, 0])) for info in infos])
 
-def contour_plot_to_console(X, Z, Y):
-    for i in range(len(X)):
-        if i % 5 == 0:
-            row = ""
-            for j in range(len(Z)):
-                if j % 5 == 0:
-                    row += " " + f"{Y[i][j]:.2f}"
-            print(row)
+## Exp Factor
+# def _potential(ball_pos, goalie_pos):
+#     goal_direction_potential = np.exp((ball_pos[0] + 1.34) / 2.68)  # Exponential growth as ball approaches goal
+#     goalie_ball_distance = np.sqrt((goalie_pos[0] - ball_pos[0])**2 + (goalie_pos[1] - ball_pos[1])**2)
+#     goalie_ball_potential = np.exp(-goalie_ball_distance)  # Exponential decay with distance
+#     return 0.7 * goal_direction_potential + 0.3 * goalie_ball_potential
+
+## Quadratic Cost
+# def _potential(ball_pos, goalie_pos):
+#     goal_direction_potential = ((ball_pos[0] + 1.34) / 2.68) ** 2
+#     goalie_ball_distance = np.sqrt((goalie_pos[0] - ball_pos[0])**2 + (goalie_pos[1] - ball_pos[1])**2)
+#     goalie_ball_potential = 1 - (goalie_ball_distance / 1.42) ** 2
+#     return 0.7 * goal_direction_potential + 0.3 * goalie_ball_potential
+
+## Asymmetric Costs
+# def _potential(ball_pos, goalie_pos):
+#     if ball_pos[0] > 0:
+#         goal_direction_potential = ((ball_pos[0] + 1.34) / 2.68) ** 2  # Higher weight if moving towards opponent goal
+#     else:
+#         goal_direction_potential = -((ball_pos[0] + 1.34) / 2.68) ** 2  # Negative or smaller positive weight if moving away
+#     goalie_ball_distance = np.sqrt((goalie_pos[0] - ball_pos[0])**2 + (goalie_pos[1] - ball_pos[1])**2)
+#     goalie_ball_potential = 1 - (goalie_ball_distance / 1.42) ** 2
+#     return 0.7 * goal_direction_potential + 0.3 * goalie_ball_potential
+
+## time based penality (need time for whole or episode scoped time step)
+# def _potential(ball_pos, goalie_pos, current_time, max_time):
+#     time_factor = current_time / max_time
+#     goal_direction_potential = ((ball_pos[0] + 1.34) / 2.68) * time_factor
+#     goalie_ball_distance = np.sqrt((goalie_pos[0] - ball_pos[0])**2 + (goalie_pos[1] - ball_pos[1])**2)
+#     goalie_ball_potential = (1 - goalie_ball_distance / 1.42) * (1 - time_factor)
+#     return 0.7 * goal_direction_potential + 0.3 * goalie_ball_potential

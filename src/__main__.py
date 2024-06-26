@@ -1,7 +1,8 @@
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
-
+from evaluate import load_model
+import glob
 
 from configparser import ConfigParser, ExtendedInterpolation
 
@@ -19,6 +20,10 @@ def main():
         env = create_kicker_env(config=config, seed=seed)
         train_kicker(config=config, seed=seed, algorithm_class=used_rl_algorithm, env=env)
     aggregator.main(path_arg=config['Algorithm']['tensorboard_log'])
+    model_files = glob.glob(os.path.join(config["Callback"]["save_path"], f"*{config['Training']['total_timesteps']}_steps.zip"))
+    print(model_files)
+    for model_file in model_files:
+        load_model(model_file, used_rl_algorithm, env)
 
 
 if __name__ == '__main__':

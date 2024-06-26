@@ -7,7 +7,6 @@ from gymnasium.envs.registration import EnvSpec
 
 from src.kicker.viewer import MujocoViewer
 
-
 class Kicker(gym.Env):
     """
     Kicker environment for reinforcement learning.
