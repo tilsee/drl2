@@ -1,15 +1,16 @@
 from configparser import ConfigParser
 
 from kicker.kicker_env import Kicker
-from sb3.stable_baselines3.common.monitor import Monitor
-from sb3.stable_baselines3.common.vec_env import DummyVecEnv, VecVideoRecorder
-from sb3.stable_baselines3.common.vec_env.vec_pbrs import VecPBRSWrapper
-from sb3.stable_baselines3.common.vec_env.vec_normalize import VecNormalize
+from src.sb3.stable_baselines3.common.monitor import Monitor
+from src.sb3.stable_baselines3.common.vec_env import DummyVecEnv, VecVideoRecorder
+from src.sb3.stable_baselines3.common.vec_env.vec_pbrs import VecPBRSWrapper
+from src.sb3.stable_baselines3.common.vec_env.vec_normalize import VecNormalize
 from wrapper_ballsaver import VecBALLSAVERWrapper
 from src.wrapper_potentialGoalSaver import VecPBRSWrapper2
 from src.wrapper_potential_holistic import VecPBRSWrapperHolistic
-
-def create_kicker_env(config: ConfigParser, seed: int):
+from src.wrapper_potential_holistic_v2 import VecPBRSWrapperHolisticV2
+import numpy as np
+def create_kicker_env(config: ConfigParser, seed: int, override_video = False):
     env_conf = config['Kicker']
     env = Kicker(seed=seed,
                  horizon=int(env_conf['horizon']),
@@ -31,11 +32,10 @@ def create_kicker_env(config: ConfigParser, seed: int):
     ############################################
 
     #env = VecPBRSWrapper(env)
-    env = VecNormalize(env, norm_obs=True, norm_reward=False)#clip_obs=10.)
     env = VecPBRSWrapperHolistic(env)
-    env = VecNormalize(env, norm_obs=False, norm_reward=True)
+    env = VecNormalize(env, norm_obs=True, norm_reward=True)
 
-    if not env_conf.getboolean('render_training'):
+    if not env_conf.getboolean('render_training') and not override_video:
         video_conf = config['VideoRecording']
         print(f"Recording video every {video_conf.getint('video_interval')} steps with a length of "
               f"{video_conf.getint('video_length')} frames, saving to {video_conf['video_folder']}")
@@ -47,7 +47,7 @@ def create_kicker_env(config: ConfigParser, seed: int):
     return env
 
 
-def load_normalized_kicker_env(config: ConfigParser, seed: int, normalize_path: str):
-    env = create_kicker_env(seed=seed, config=config)
+def load_normalized_kicker_env(config: ConfigParser, seed: int, normalize_path: str, override_video = True):
+    env = create_kicker_env(seed=seed, config=config, override_video=override_video)
     env = VecNormalize.load(normalize_path, env)
     return env

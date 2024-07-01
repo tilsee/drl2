@@ -8,6 +8,7 @@ def load_model(model_path: str, algorithm_class, env):
     white_goals = 0
     black_goals = 0
     outside_bounds = 0
+    dones_count = 0 
     for _ in range(10000):
         action, _states = model.predict(obs, deterministic=True)
         obs, _, dones, infos = env.step(action)
@@ -15,12 +16,14 @@ def load_model(model_path: str, algorithm_class, env):
         black_goals += infos[0]['black_conceded']
         outside_bounds += infos[0]['outside_bounds']
         if dones[0]:
+            dones_count += 1
             obs = env.reset()
     # Construct the results dictionary
     results = {
         "white_goals": white_goals,
         "black_goals": black_goals,
-        "outside_bounds": outside_bounds
+        "outside_bounds": outside_bounds,
+        "timeouts": dones_count-white_goals-black_goals-outside_bounds
     }
     model_dir = str(model_path).replace(".zip", "evaluation_results.json")
     

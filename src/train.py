@@ -30,13 +30,14 @@ def linear_schedule(initial_value: float, final_value: float, final_lr_progress:
             new_lr = initial_value - (initial_value - final_value) * ((1-progress_remaining)/final_lr_progress)
             # scaled_progress = 1 - ((1 - progress_remaining) / final_lr_progress)
             # new_lr = (final_value - initial_value) * scaled_progress + initial_value
-            print(f"Learning rate: {new_lr}, scaled_progress: {scaled_progress}")
+            print(f"Learning rate: {new_lr}")
             return new_lr
         else:
             # After reaching the final_lr_progress, keep the learning rate at final_value
             return final_value
 
     return func
+
 def train_kicker(config: ConfigParser, seed: int, algorithm_class, env):
     alg_config = config['Algorithm']
     try:

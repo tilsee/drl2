@@ -23,15 +23,15 @@ class VecPBRSWrapperHolistic(VecEnvWrapper):
         self.time_step += 1
         return observations, rewards, dones, infos
 
-def _potential(ball_pos, goalie_pos):
+def _potential(ball_pos, goalie_x_pos, goalie_y_pos = -1.0435):
     # Encourage the ball to be closer to the opponent's goal (x=1.34) and goalie to be near the ball
     goal_direction_potential = np.maximum(0, (ball_pos[0] + 1.34) / 2.68)  # Normalize between 0 and 1
-    goalie_ball_distance = np.sqrt((goalie_pos[0] - ball_pos[0])**2 + (goalie_pos[1] - ball_pos[1])**2)
+    goalie_ball_distance = np.sqrt((goalie_x_pos - ball_pos[0])**2 + (goalie_y_pos - ball_pos[1])**2)
     goalie_ball_potential = np.maximum(0, 1 - goalie_ball_distance / 1.42)  # Assuming max distance as diagonal of field
     return 0.7 * goal_direction_potential + 0.3 * goalie_ball_potential
 
 def _potentials(infos):
-    return np.array([_potential(info["ball_position"], info.get("goalie_position", [0, 0])) for info in infos])
+    return np.array([_potential(info["ball_position"], info["goalie_x_position"]) for info in infos])
 
 ## Exp Factor
 # def _potential(ball_pos, goalie_pos):
