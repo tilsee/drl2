@@ -1,34 +1,42 @@
 [Common]
-experiment_name : TestRun
-configuration_save_path : ../experiments/${Common:experiment_name}/logs/configs/
+experiment_name : fin2_PotentialHolisticV1_Vanilla
+configuration_save_path : ./experiments/${Common:experiment_name}/logs/configs/
 
 [Kicker]
-horizon : 1000
+horizon : 600
 # Action space
-continuous_act_space : True
+continuous_act_space : False
 multi_discrete_act_space : False
 # Observation space
+
 image_obs_space : False
 # Episode definition
 end_episode_on_struck_goal : True
 end_episode_on_conceded_goal : True
 reset_goalie_position : True
+
 # Rendering
-render_training : True
+render_training : False
 # Discrete parameters
-lateral_bins : 5
-angular_bins : 5
+lateral_bins : 9
+angular_bins : 9
 # Step frequency
 step_frequency : 16
 
 [Algorithm]
 policy : MlpPolicy
+; learning_rate_start : 0.003
+; learning_rate_end : 0.003
+; final_lr_progress : 0.1
+# only is applied to additional layers as described in policy_kwarks net_arch
 # See SB3 documentation for available options and train.py for additional implementation requirements
-;policy_kwargs : {'net_arch':{'pi':[64, 64], 'vf':[64, 64]}}
-tensorboard_log : ../experiments/${Common:experiment_name}/tensorboard/
+; policy_kwargs : {'net_arch':{'pi':[32, 32], 'vf':[32, 32]}}
+; policy_kwargs : {'net_arch':{'pi':[64, 64], 'vf':[64, 64]}}
+; policy_kwargs : {'net_arch':[{'pi':[128, 128], 'vf':[128, 128]}]}
+tensorboard_log : ./experiments/${Common:experiment_name}/tensorboard/
 
 [Training]
-total_timesteps : 2000000
+total_timesteps : 1000000
 tb_log_name : training_run
 
 ##########################################################################
@@ -37,11 +45,11 @@ tb_log_name : training_run
 
 [Callback]
 save_freq : 500000
-save_path : ../experiments/${Common:experiment_name}/logs/models/
+save_path : ./experiments/${Common:experiment_name}/logs/models/
 save_replay_buffer : True
 save_vecnormalize : True
 
 [VideoRecording]
-video_folder : ../experiments/${Common:experiment_name}/logs/videos/
-video_interval : 100000
+video_folder : ./experiments/${Common:experiment_name}/logs/videos/
+video_interval : 500000
 video_length : 750

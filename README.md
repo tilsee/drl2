@@ -1,3 +1,13 @@
+# Abgabe Gruppe 7
+
+Das Ergebniss unserer Abgabe ist ein auf dem Potential-Based Reward Shaping basierender Wrapper, der das "goal_direction_potential" und das "goalie_ball_potential" berechnet und mit 70/30 gewichtet.
+Alle anderen Versuche sind weitesgehend signifikant schlechter geworden.
+Auffällig ist, dass der Agent nur auf dem Trainierten Seed gut läuft und auch beim Laden mit der Methode `load_normalized_kicker_env` mit den entsprechenden `vec_normaized.pkl` die Performance stark abfällt (der Goelie hält hier nie etwas). Wenn hingegen die Evaluation direkt innerhalb der Trainingsschleife stattfindet ist die Performance immer sehr gut/ähnlich zum Trainingserfolg.
+
+Zum laufen des Projektes muss, neben den normalen Installations Vorraussetzungen des Repos, lediglich eine config.ini angelgt werden, die die Inhalte der config.ini.template enthält, welches die beste Konfiguration enthält.
+
+---
+
 # Training a Goalie using Deep Reinforcement Learning
 
 This is an exercise for students to train a goalie in a foosball environment using Python.

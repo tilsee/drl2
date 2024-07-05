@@ -179,6 +179,7 @@ class Kicker(gym.Env):
         truncated = self.episode_step >= self.horizon or ball_outside_bounds or ball_stopped_outside_goalie_space
 
         info = {**r_info, "outside_bounds": 1 if ball_outside_bounds else 0}
+        info["ball_stopped"] = self._ball_stopped() or is_ball_outside_bounds(ball_data)
 
         if ball_outside_bounds:
             info["ball_outside_bounds_x"] = ball_data[0]
@@ -251,41 +252,6 @@ class Kicker(gym.Env):
             return np.array([-1 + (action * self.lateral_increment), self.last_action[1]])
         action -= self.lateral_bins
         return np.array([self.last_action[0], -1 + (action * self.angular_increment)])
-
-    # def _flatten_dynamic_multi_discrete_action(self, action):
-    #     lateral_action = self.last_action[0]
-    #     if action[0] > self.lateral_bins//2:
-    #         lateral_action -= (action[0] - (self.lateral_bins//2)) * self.lateral_increment
-    #     else:
-    #         lateral_action += action[0] * self.lateral_increment
-    #
-    #     angular_action = self.last_action[1]
-    #     if action[1] > self.angular_bins // 2:
-    #         angular_action -= (action[1] - (self.angular_bins // 2)) * self.angular_increment
-    #     else:
-    #         angular_action += action[1] * self.angular_increment
-    #     return np.array([lateral_action, angular_action])
-
-    # def _flatten_dynamic_discrete_action(self, action):
-    #     action += 1  # To avoid 0 in increment multiplication
-    #     increment_threshold = (self.half_combined_discrete_bins - 1)
-    #
-    #     using_lateral_action = True
-    #     last_action = self.last_action[0]
-    #     if action >= self.half_combined_discrete_bins:
-    #         using_lateral_action = False
-    #         action -= self.half_combined_discrete_bins
-    #         last_action = self.last_action[1]
-    #
-    #     discrete_action = last_action
-    #     if action < increment_threshold:
-    #         discrete_action += action * self.discrete_increment
-    #     elif action > increment_threshold:
-    #         discrete_action -= (action - increment_threshold) * self.discrete_increment
-    #
-    #     binned_action = np.clip(discrete_action, a_min=-1, a_max=1)
-    #     return np.array([binned_action, self.last_action[1]]) if using_lateral_action else np.array(
-    #         [self.last_action[0], binned_action])
 
     def _get_discrete_observation(self) -> np.ndarray:
         sensors_wo_goals = self.data.sensordata[2:12]

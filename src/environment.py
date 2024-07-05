@@ -3,12 +3,13 @@ from configparser import ConfigParser
 from kicker.kicker_env import Kicker
 from src.sb3.stable_baselines3.common.monitor import Monitor
 from src.sb3.stable_baselines3.common.vec_env import DummyVecEnv, VecVideoRecorder
-from src.sb3.stable_baselines3.common.vec_env.vec_pbrs import VecPBRSWrapper
+# from src.sb3.stable_baselines3.common.vec_env.vec_pbrs import VecPBRSWrapper
 from src.sb3.stable_baselines3.common.vec_env.vec_normalize import VecNormalize
-from wrapper_ballsaver import VecBALLSAVERWrapper
-from src.wrapper_potentialGoalSaver import VecPBRSWrapper2
+# from wrapper_ballsaver import VecBALLSAVERWrapper
+# from src.wrapper_potentialGoalSaver import VecPBRSWrapper2
 from src.wrapper_potential_holistic import VecPBRSWrapperHolistic
-from src.wrapper_potential_holistic_v2 import VecPBRSWrapperHolisticV2
+# from src.wrapper_potential_holistic_v2 import VecPBRSWrapperHolisticV2
+# from src.wrapper_potential_v3 import VecPBRSWrapperV3
 import numpy as np
 def create_kicker_env(config: ConfigParser, seed: int, override_video = False):
     env_conf = config['Kicker']
@@ -31,8 +32,7 @@ def create_kicker_env(config: ConfigParser, seed: int, override_video = False):
     # Add Wrappers here
     ############################################
 
-    #env = VecPBRSWrapper(env)
-    env = VecPBRSWrapperHolistic(env)
+    env = VecPBRSWrapperHolistic(env, gamma=0.99)
     env = VecNormalize(env, norm_obs=True, norm_reward=True)
 
     if not env_conf.getboolean('render_training') and not override_video:
