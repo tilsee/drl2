@@ -5,7 +5,7 @@ configuration_save_path : ./experiments/${Common:experiment_name}/logs/configs/
 [Kicker]
 horizon : 600
 # Action space
-continuous_act_space : False
+continuous_act_space : True
 multi_discrete_act_space : False
 # Observation space
 
