@@ -33,7 +33,7 @@ def _potential(info, goalie_y_pos = -1.0435):
     goal_direction_potential = np.maximum(0, (ball_pos[0] + 1.34) / 2.68)  # Normalize between 0 and 1
     goalie_ball_distance = np.sqrt((goalie_x_pos - ball_pos[0])**2 + (goalie_y_pos - ball_pos[1])**2)
     goalie_ball_potential = np.maximum(0, 1 - goalie_ball_distance / 3)  # Assuming max distance as diagonal of field
-    return 0.7 * goal_direction_potential + 0.3 * goalie_ball_potential
+    return 0.8 * goal_direction_potential + 0.2 * goalie_ball_potential
 
 def _potentials(infos):
     return np.array([_potential(info) for info in infos])
